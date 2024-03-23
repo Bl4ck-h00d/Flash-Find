@@ -7,8 +7,5 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Rohan",
-  "license": "MIT",
-  "devDependencies": {
-    "worker-loader": "^3.0.8"
-  }
+  "license": "MIT"
 }
