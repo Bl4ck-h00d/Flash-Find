@@ -25,3 +25,43 @@ This approach allows for faster search performance without blocking the main thr
 - Splits the search data into chunks based on the number of available logical cores.
 - Distributes search tasks among worker threads for concurrent execution.
 - Aggregates search results from multiple worker threads to generate the final result.
+
+
+## Installation
+  You can install ThunderSearch via npm:
+  
+  ```bash
+  npm install thunder-search
+  ```
+  ### Usage
+  ```javascript
+  import ThunderSearch from 'thunder-search';
+  
+  // Define your data source and callback function
+  const dataSource = [...]; // Your data source
+  const callback = (result) => { console.log(result); }; // Callback function to handle search results
+  
+  // Initialize ThunderSearch
+  const thunderClient = new ThunderSearch(dataSource);
+  
+  // Initialize ThunderSearch and perform initialization
+  thunderClient.init(callback);
+  
+  // Perform search
+  thunderClient.search("query");
+  ```
+
+  ### Features
+  
+  * Lightning-Fast Performance: ThunderSearch harnesses the power of web workers to execute search operations in parallel, ensuring blazingly fast performance.
+  * Scalable: Designed to handle large datasets and complex search requirements, ThunderSearch offers scalable search capabilities for diverse applications.
+  
+  ### Contributing
+  Contributions are welcome! Please feel free to submit bug reports, feature requests, or pull requests via the GitHub repository.
+  
+  ### License
+  This project is licensed under the MIT License - see the LICENSE file for details.
+
+
+
+
