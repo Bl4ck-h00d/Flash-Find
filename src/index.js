@@ -1,89 +1,109 @@
 import WebWorker from './WebWorker';
 import worker from './worker.js'
 
-class ThunderSearch {
-    constructor(dataSource, workerScript = worker) {
-        if (!ThunderSearch.instance) {
-            this.workerPool = [];
-            this.dataChunks = [];
-            this.threadSyncFlag = 0;
-            this.searchResult = [];
-            this.workerScript = workerScript;
-            this.dataSource = dataSource;
+class FlashFind {
+    #workerPool = [];
+    #dataChunks = [];
+    #threadSyncFlag = 0;
+    #searchResult = [];
+    #workerScript = worker;
+    #dataSource = null;
 
-            ThunderSearch.instance = this;
+    constructor(dataSource) {
+        if (!FlashFind.instance) {
+            this.#dataSource = dataSource;
+
+            FlashFind.instance = this;
         }
 
-        return ThunderSearch.instance;
+        return FlashFind.instance;
     }
 
+    /**
+     * Initializes the worker pool and data chunks.
+     * @param {function} callback - A function to be called to fetch the search results.
+     */
     init(callback) {
-        this.workerPool = [];
+        this.#workerPool = [];
         for (let i = 0; i < navigator.hardwareConcurrency; i++) {
-            const workerThread = new WebWorker(this.workerScript);
-            this.workerPool.push(workerThread);
-            workerThread.addEventListener('message', (event) => this.handleMessage(event, callback));
+            const workerThread = new WebWorker(this.#workerScript);
+            this.#workerPool.push(workerThread);
+            workerThread.addEventListener('message', (event) => this.#handleMessage(event, callback));
         }
-        this.dataChunks = this.chunkifyRecordsPerCore(this.dataSource);
+        this.#dataChunks = this.#chunkifyRecordsPerCore(this.#dataSource);
     }
 
-    handleMessage(event, callback) {
+    /**
+     * Handles incoming messages from worker threads.
+     * @param {MessageEvent} event - The incoming message from the worker thread.
+     * @param {function} callback - A function to be called to fetch the search results.
+    */
+    #handleMessage(event,callback) {
         const searchedRecords = event.data;
-        this.threadSyncFlag += 1;
-        if (this.threadSyncFlag === 1) {
-            this.searchResult = [...searchedRecords];
+
+        this.#threadSyncFlag += 1;
+        if (this.#threadSyncFlag === 1) {
+            this.#searchResult = [...searchedRecords];
         } else {
-            this.searchResult = [...this.searchResult, ...searchedRecords];
+            this.#searchResult = [...this.#searchResult, ...searchedRecords];
         }
-        if (this.threadSyncFlag === navigator.hardwareConcurrency) {
-            callback(this.searchResult);
+
+        if (this.#threadSyncFlag === navigator.hardwareConcurrency) {
+            callback(this.#searchResult);
         }
     }
 
-    chunkifyRecordsPerCore(data) {
+    /**
+     * Splits the input data into chunks, with each chunk being processed by a separate worker thread.
+     * @param {Array} data - The input data to be processed.
+     * @returns {Array} An array of arrays, where each sub-array represents a chunk of data.
+    */
+    #chunkifyRecordsPerCore(data) {
         const recordsPerCore = [];
         let prevIdx = 0;
-        for (let core = 0; core < this.workerPool.length; core++) {
-            recordsPerCore.push(data.slice(prevIdx, prevIdx + Math.ceil(data.length / this.workerPool.length)));
-            prevIdx += Math.ceil(data.length / this.workerPool.length);
+        for (let core = 0; core < this.#workerPool.length; core++) {
+            recordsPerCore.push(data.slice(prevIdx, prevIdx + Math.ceil(data.length / this.#workerPool.length)));
+            prevIdx += Math.ceil(data.length / this.#workerPool.length);
         }
         return recordsPerCore;
     }
 
+    /**
+     * Searches the input data for the given query.
+     * @param {String} query - The query to be searched.
+     * @returns {Array} An array of records that match the given query.
+    */
     search(query) {
-        this.threadSyncFlag = 0;
-        this.searchResult = [];
+        this.#threadSyncFlag = 0;
+        this.#searchResult = [];
 
         const taskQueue = [];
 
         const isWorkerAvailable = () => {
-            return this.workerPool.some(worker => !worker.isBusy);
+            return this.#workerPool.some(worker => !worker.isBusy);
         };
 
         const executePendingTasks = () => {
             while (taskQueue.length > 0 && isWorkerAvailable()) {
                 const task = taskQueue.shift();
-                this.executeTask(task);
+                executeTask(task);
             }
         };
 
         const executeTask = ({ idx, workerThread }) => {
-            // const start = performance.now();
             workerThread.isBusy = true;
             workerThread.postMessage({
-                record: this.dataChunks[idx],
+                record: this.#dataChunks[idx],
                 searchText: `${query}`,
             });
 
             workerThread.addEventListener('message', () => {
-                // const end = performance.now();
-                // console.log(`worker ${idx}:`, end - start)
                 workerThread.isBusy = false;
                 executePendingTasks();
             });
         };
 
-        for (const [idx, workerThread] of this.workerPool.entries()) {
+        for (const [idx, workerThread] of this.#workerPool.entries()) {
             if (isWorkerAvailable()) {
                 executeTask({ idx, workerThread });
             } else {
@@ -93,4 +113,4 @@ class ThunderSearch {
     }
 }
 
-export default ThunderSearch;
+export default FlashFind;
