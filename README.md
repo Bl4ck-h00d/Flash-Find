@@ -1,4 +1,4 @@
-# Thunder Search ⚡: Parallel Search Optimization with Web Workers
+# Flash Find ⚡: Parallel Search Optimization with Web Workers
 
 This project addresses the performance challenges associated with client-side search operations as the dataset grows or when using complex search algorithms. 
 In scenarios where traditional approaches fail to provide satisfactory performance, this project offers a solution by leveraging web workers for parallel processing.
@@ -28,7 +28,7 @@ This approach allows for faster search performance without blocking the main thr
 
 
 ## Installation
-  You can install ThunderSearch via npm:
+  You can install ThunderSearch via npm: https://www.npmjs.com/package/thunder-search?activeTab=readme
   
   ```bash
   npm install thunder-search
