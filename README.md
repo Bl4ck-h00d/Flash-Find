@@ -28,33 +28,33 @@ This approach allows for faster search performance without blocking the main thr
 
 
 ## Installation
-  You can install ThunderSearch via npm: https://www.npmjs.com/package/thunder-search?activeTab=readme
+  You can install Flash Find via npm: https://www.npmjs.com/package/thunder-search?activeTab=readme
   
   ```bash
-  npm install thunder-search
+  npm install flash-find
   ```
   ### Usage
   ```javascript
-  import ThunderSearch from 'thunder-search';
+  import FlashFind from 'flash-find';
   
   // Define your data source and callback function
   const dataSource = [...]; // Your data source
   const callback = (result) => { console.log(result); }; // Callback function to handle search results
   
-  // Initialize ThunderSearch
-  const thunderClient = new ThunderSearch(dataSource);
+  // Initialize FlashFind
+  const flash = new FlashFind(dataSource);
   
-  // Initialize ThunderSearch and perform initialization
-  thunderClient.init(callback);
+  // Initialize FlashFind and perform initialization
+  flash.init(callback);
   
   // Perform search
-  thunderClient.search("query");
+  flash.search("query");
   ```
 
   ### Features
   
-  * Lightning-Fast Performance: ThunderSearch harnesses the power of web workers to execute search operations in parallel, ensuring blazingly fast performance.
-  * Scalable: Designed to handle large datasets and complex search requirements, ThunderSearch offers scalable search capabilities for diverse applications.
+  * Lightning-Fast Performance: FlashFind harnesses the power of web workers to execute search operations in parallel, ensuring blazingly fast performance.
+  * Scalable: Designed to handle large datasets and complex search requirements, FlashFind offers scalable search capabilities for diverse applications.
   
   ### Contributing
   Contributions are welcome! Please feel free to submit bug reports, feature requests, or pull requests via the GitHub repository.
